@@ -1,0 +1,354 @@
+Capstone Project: MRI-Based Deep Learning and Explainable AI for Alzheimer’s Disease Classification
+Samantha Alpert
+College of Technology, Wilmington University
+CSC 8101: Capstone Project
+Prof. Raman Nandikkara
+August 24, 2025
+ 
+Abstract
+Alzheimer’s disease (AD) is a disorder that affects the brain; this disorder slowly destroys memory and thinking skills. The disease progresses and eventually the ability to carry out simple tasks is taken away. Although the disease can affect anyone, most of Americans who have Alzheimer’s are 65 and older. Currently ranked as seventh leading cause of death, Alzheimer’s starts to disrupt life years before. Dementia is a symptom of Alzheimer’s disease, consisting of the loss of cognitive function. This includes remembering, reasoning and other cognitive behavior abilities. Alzheimer’s disease is named after Dr. Alois Alzheimer, after the examination of a women who showed amyloid plaques and neurofibrillary from the tau protein. These two core findings have led to the complex understanding that contributes to these brain changes (NIH, n.d.).Neuroimaging is now a crucial part in diagnosing Alzheimer’s, for example, CT, MRI and PET scans. These scans Can then be used to understand progression of the disease in patients over a period of time. Utilizing these scans can produce spatial visualizations of the disease, which make classifying the progression easier (Alzheimer's Disease Neuroimaging Initiative n.d.). By combining time series data and slices of the brain, we can compare in a time predictive analysis. In doing so, we hope to create a model that predicts progression of the disease over time 
+ 
+Statement of Problem Concept Paper + Framework and Overview
+Introduction
+Alzheimer’s disease (AD) is a disorder that causes dementia due to the degeneration of the cells in the brain. Dementia is characterized by the decline of independence and personal daily activities. There are currently a few hypotheses, most in which can be bucketed into two categories: cholinergic and amyloid (Breijyeh & Karaman, 2020). The cholinergic hypothesis describes the cause of AD to be linked to Acetylcholine, which is a neurotransmitter secreted by cholinergic neurons. These pathways related to memory and learning are related to cholinergic neurons, thus giving an understanding to how this hypothesis could arise (Chen et al., 2022). 
+In recent years, the understanding of how proteins themselves can be linked to AD. The amyloid theory describes the process of the buildup of amyloid proteins and the link to the AD (Selkoe & Hardy, 2016).There are other factors that can contribute to AD, including age, genetic factors, head injuries, vascular diseases, infections, and environmental exposer. Most research is focusing on understanding the proteins, such as Tau and Beta-amyloid. In conjunction with understanding pathways, neuroimaging is a tool that has widely been adopted in all aspects of research of the disease (Alzheimer's Disease Neuroimaging Initiative n.d.).
+The data sets that the Alzheimer's Disease Neuroimaging Initiative (ANDI) have are comprehensive and widely used. Examples are longitudinal, imaging, genetic and other biomarker data. The data types vary also, including structural, functional, molecular brain imaging, biofluid biomarkers, cognitive assessments, genetic data and demographic information (NIH, n.d.).To address the issue of Alzheimer's disease (AD), neuroimaging data from ADNI will be used to visualize and classify, build a pipeline with metadata and interpret what the model sees, use the time series data available to model progression over time, combine the MRI data with metadata, and pretrain to see if diagnosis over time is possible with the model. 
+Methodology
+Data are drawn from the Alzheimer’s Disease Neuroimaging Initiative (ADNI). For this project, T1‑weighted structural MRI volumes and the accompanying metadata (diagnosis labels, subject IDs, scan dates) are used. The targeted image collection is ADNI 1.5T MRI, comprising >7,600 images with subject‑level labels spanning CN, MCI, and AD. Inclusion criteria: subjects with available T1‑weighted MRI and unambiguous diagnostic labels at the scan date. Exclusion criteria: corrupted files, missing labels, or scans without clear mapping to a clinical category.
+Preprocessing
+Slice extraction: Use nibabel to load NIfTI files and extract axial slices centered on the midplane; save 8–10 neighboring slices per volume to capture context. Normalization & resizing: min–max normalization to 0–255 and resizing to 128×128; convert to 3‑channel PNGs for CNN compatibility. Label mapping: parse subject IDs from filenames; join to metadata to assign CN/MCI/AD labels; stratify into class‑specific folders. Augmentation: random rotations, shifts, flips, and slight intensity jitter to improve generalization under scanner variability. Splitting: stratified 80/20 train–validation split at the subject level to prevent leakage.
+Model Architecture and Training
+A compact CNN is implemented (Rescaling → Conv/MaxPool ×3 → Flatten → Dense[128] → Dense[3]). The model uses Adam optimization and Sparse Categorical Cross‑Entropy loss with logits. Training proceeds for 10–30 epochs with early stopping on validation loss. Hyperparameters (learning rate, batch size, augmentation strength) are tuned via small grid search.
+Evaluation Metrics and Validation
+Primary metrics: accuracy and Area Under the Receiver Operating Characteristic Curve (AUC). Secondary metrics: precision, recall, F1‑score, and confusion matrix per class (CN, MCI, AD). Curves (accuracy, loss) are recorded each epoch. Where feasible, external validation is encouraged (e.g., hold‑out ADNI phase) to estimate generalizability.
+Explainability
+Grad‑CAM is applied to validation images to visualize salient regions. Heatmaps are qualitatively compared to neuroanatomical expectations (e.g., medial temporal lobe). When biomarker maps are available (e.g., PET), future work will overlay or correlate Grad‑CAM intensities with pathology to assess biological plausibility.
+Reproducibility & Environment
+A dedicated Conda environment (Python 3.9) isolates dependencies (TensorFlow/Keras, nibabel, OpenCV, pandas). The full preprocessing and training scripts are provided in the Appendix. Random seeds are fixed where possible; data splits are saved for reproducibility.
+Data in Alzheimer’s Disease
+Data in Alzheimer Disease (AD) is comprised of various image data, laboratory examination for B12, and medical, family history (Breijyeh & Karaman, 2020). Although there any many factors that play into AD, the data analysis mentioned in this paper is comprised solely of Magnetic Resonance Imaging (MRI) data. This MRI data shows neurons, or more specifically, energy that protons release when the protons realign with the magnetic field. This happens when a radiofrequency current is pulsed through the patient (Magnetic Resonance Imaging (MRI) n.d.).
+The two neuropathological changes in AD that the model could identify are the Senile Plaques and the Neurofibrillary Tangles. The Senile Plaques are extracellular deposits of beta-amyloid protein (AB) – which come in many different forms of morphology. These plaques are caused by enzyme synthesized fragments, which can clump up along the hippocampus, amygdala, and cerebral cortex. This accumulation can cause the stimulation of astrocytes and microglia, damage to axons, dendrites, and loss of synapses – in addition to cognitive impairments (Breijyeh & Karaman, 2020).
+The second neuropathological change that the model could potentially create with its own pattern recognition is Neurofibrillary Tangles (NFTs). This change is primarily denoted by the tau protein and its tangles. In some stages of the tau protein folding into its native form, the bonds that form can tangle up, leading to amino acids to be misfolded and no longer able to fulfill its job. These proteins can accumulate and create tangles, which are known to contribute to displacement of the nucleus of the periphery part of the soma and synaptic loss (Breijyeh & Karaman, 2020). 
+There is currently a global initiative to share data in Alzheimer’s disease research. Many recognize the importance of data sharing but lack the capability to share the data. There are many different ways to acquire data in Alzheimer’s research, starting with the National Library of Medicine. The Global Alzheimer's Association Interactive Network (GAAIN) was a novel approach to create a global network of Alzheimer’s data in 2017. With analytical tools and computational resources, this addressed the key impediments to the data sharing model and approach (Ashish et al., 2016).
+Alternatively, the University of Southern California had their own initiative, Alzheimer’s Disease Neuroimaging Imaging Initiative (ANDI). The ANDI is a public-private partnership that was created to develop a multisite, longitudinal study of “normal cognitive aging, mild cognitive impairment (MCI) and early Alzheimer’s disease as a public domain research resource to facilitate the scientific evaluation of neuroimaging and other biomarkers for the onset and progression of MCI and Alzheimer's disease” (National Institute on Aging 2025).
+Data Acquisition 
+Data is acquired from the Alzheimer’s Disease Neuroimaging initiative. This is accessed through the University of Southern California website. The ADNI study has been running continuously since 2004 and is organized into 5 phases – ANDI1 – ANDI4. Under Image Collections, the ANDI data can be found. This data includes a complete 3-year ANDI study (ANDI, n.d.). This is the data file that will be downloaded and used in the model, ADNI 1.5T MRI collection. This collection includes over 7600 images with metadata that include clinical diagnosis, scan dates and subject IDs.
+Data used in the preparation of this capstone project were obtained from the Alzheimer’s Disease Neuroimaging Initiative (ADNI) database (adni.loni.usc.edu). The ADNI was launched in 2003 as a public-private partnership, led by Principal Investigator Michael W. Weiner, MD. The primary goal of ADNI is to test whether serial MRI, PET, other biological markers, and clinical and neuropsychological assessments can be combined to measure the progression of mild cognitive impairment (MCI) and early Alzheimer’s disease (AD). The investigators within ADNI contributed to the design and implementation of ADNI and/or provided data but did not participate in the analysis or writing of this report. A complete listing of ADNI investigators can be found at: http://adni.loni.usc.edu/wp-content/uploads/how_to_apply/ADNI_Acknowledgement_List.pdf.”
+The research explores the integration of computer vision and clinical metadata to classify Alzheimer’s disease in different stages of progression. Using MRI images slices from the ADNI dataset, the following procedures were carried out: preprocessing imaging data, organizing the data by clinical diagnosis, applying a convolutional neural network (CNN) for classification and utilizing Grad-Cam for model interpretability. Clinical metadata was then incorporated to explore biomarker correlations, attempting to establish a multi-modal framework for future Alzheimer’s research. This was not done due to insufficient data, ie, tau or B-amyloid known images.
+This result of the analysis provided a computer vision pipeline to classify images into the three groups – or categories - cognitively normal (CN), Mild cognitive impairment (MCI), and Alzheimer's Disease (AD).
+Literature Review
+Overview and Epidemiology
+Alzheimer’s disease (AD) is a progressive neurodegenerative disorder and the most common cause of dementia worldwide, affecting over 55 million people globally (World Health Organization [WHO], 2023). In the United States alone, more than 6 million individuals are currently living with AD, with projections estimating nearly 13 million cases by 2050 if no disease-modifying treatment is developed (Alzheimer’s Association, 2024). The condition is the seventh leading cause of death, and its socioeconomic impact is profound, with annual care costs exceeding $345 billion in the U.S. alone (Alzheimer’s Association, 2024). The disease develops insidiously, often beginning years before clinical symptoms manifest, making early detection and progression monitoring critical for timely intervention.
+Neuroimaging has emerged as an essential tool for both clinical diagnosis and research in AD. Structural magnetic resonance imaging (MRI), functional MRI (fMRI), positron emission tomography (PET), and diffusion tensor imaging (DTI) provide key biomarkers for disease detection and monitoring. Public initiatives such as the Alzheimer’s Disease Neuroimaging Initiative (ADNI) have standardized multi-center imaging protocols, enabling large-scale, longitudinal datasets that have catalyzed advances in machine learning-based AD classification and prediction.
+Pathophysiological Mechanisms
+The pathogenesis of AD remains complex, with two predominant hypotheses guiding much of the research. The cholinergic hypothesis posits that degeneration of cholinergic neurons and consequent acetylcholine deficiency underline the cognitive decline observed in AD patients (Chen et al., 2022). This neurotransmitter plays a central role in learning and memory, and its loss disrupts critical signaling pathways. Conversely, the amyloid cascade hypothesis attributes disease onset to the accumulation of beta-amyloid (Aβ) plaques, which initiate a cascade of neurotoxic events (Selkoe & Hardy, 2016).
+A third central hallmark is tau pathology, characterized by the formation of neurofibrillary tangles (NFTs). Misfolded tau proteins destabilize microtubules and impair axonal transport, contributing to synaptic loss and neuronal death (Breijyeh & Karaman, 2020). Emerging evidence suggests that AD involves multifactorial interactions among amyloid, tau, vascular factors, neuroinflammation, and genetic predispositions, such as APOE ε4 carriage (Qiu et al., 2022). Importantly, these pathologies can be visualized and quantified using neuroimaging techniques, enabling computational models to detect disease-specific patterns.
+Neuroimaging Modalities and Data Resources
+MRI remains the primary modality for structural assessment in AD research. High-resolution T1-weighted images reveal cortical atrophy patterns, particularly in the hippocampus, entorhinal cortex, and posterior cingulate regions, which are strongly associated with disease progression (Aghaei et al., 2025). Diffusion tensor imaging provides insight into white matter integrity, revealing microstructural degeneration even in preclinical stages. PET imaging extends the capability of MRI by directly visualizing molecular pathology. Amyloid PET tracers (e.g., ^18F-florbetapir) and tau PET tracers (e.g., ^18F-flortaucipir) allow in vivo quantification of pathology, facilitating longitudinal studies of biomarker changes (Castellano et al., 2024).
+The ADNI database provides a comprehensive, multimodal dataset, including structural and functional MRI, PET, cerebrospinal fluid biomarkers, cognitive scores, and demographic data. Since 2004, ADNI has been a cornerstone for AI-based Alzheimer’s research, standardizing imaging acquisition and quality control across multiple sites (National Institute on Aging [NIA], 2025). Other initiatives, such as the Global Alzheimer’s Association Interactive Network (GAAIN), further promote open science and cross-institutional collaboration (Ashish et al., 2016).
+AI and Machine Learning in Alzheimer’s Imaging
+Deep learning (DL) approaches, particularly convolutional neural networks (CNNs), have revolutionized the analysis of neuroimaging data. These models automatically extract hierarchical features from MRI scans, enabling accurate classification of cognitively normal (CN), mild cognitive impairment (MCI), and AD subjects.
+Recent studies report high performance in cross-sectional classification. For example, Aghaei et al. (2025) achieved over 90% accuracy in multi-class classification (CN/MCI/AD) using 3D CNNs on T1-weighted MRI from ADNI. Castellano et al. (2024) found that multimodal models combining MRI and amyloid PET achieved superior accuracy (AUC = 0.94) compared to unimodal approaches (MRI-only AUC = 0.88).
+Longitudinal models extend beyond static classification to predict disease progression. Park et al. (2023) demonstrated that deep learning models using baseline MRI could predict MCI-to-AD conversion within three years with an AUC of 0.87. Al Olaimat et al. (2023) applied recurrent neural networks (RNNs) and autoencoder-based architectures (PPAD, PPAD-AE) to longitudinal MRI and tabular data, improving prediction accuracy compared to baseline machine learning models.
+Data efficiency remains a challenge, given the limited size of labeled medical datasets. Turrisi et al. (2024) evaluated 15 different 3D CNN architectures and found that data augmentation strategies, such as rotation and intensity scaling, substantially improved performance in small-sample scenarios. Recent advances also focus on slice selection to improve computational efficiency. A 2025 study in Scientific Reports demonstrated that selecting the most informative MRI slices prior to CNN training increased classification accuracy by up to 5% over models trained on all slices.
+Explainable AI in Alzheimer’s Imaging
+As AI systems move toward clinical application, interpretability is critical. Explainable AI (XAI) methods, such as Gradient-weighted Class Activation Mapping (Grad-CAM) and occlusion sensitivity analysis (OSA), highlight the image regions most influential to model predictions. Chattopadhyay et al. (2024) found that Grad-CAM tended to emphasize broader cortical regions, while OSA highlighted localized hippocampal structures, suggesting the two methods capture complementary information.
+Khosroshahi et al. (2025) reviewed XAI applications in AD neuroimaging, emphasizing the need for standardized interpretability protocols and cautioning against over-reliance on heatmaps without biological validation. Wang et al. (2024) integrated interpretability into a multimodal progression prediction model, allowing clinicians to visualize how different biomarkers influenced the prediction trajectory. This transparency builds trust in AI outputs and may facilitate regulatory approval.
+Gaps in the Literature
+Despite rapid progress, several limitations persist. First, most studies rely on cross-sectional designs, limiting their ability to model temporal disease dynamics. While some longitudinal approaches have emerged, they often lack integration of multi-timepoint data from multiple modalities (Wang et al., 2024). Second, there is insufficient incorporation of biomarker-validated imaging models, with few studies overlaying PET-derived pathology maps onto MRI-based AI predictions to confirm biological relevance. Third, model generalizability remains a concern; performance often drops when models are tested on datasets from different scanners or populations (Turrisi et al., 2024). Finally, while XAI techniques are becoming more common, there is a need for quantitative validation of interpretability outputs against neuropathological ground truth.
+Addressing these gaps requires robust, multimodal, longitudinal datasets; interpretable model architectures; and standardized evaluation frameworks. The integration of MRI, PET, and clinical metadata—alongside rigorous interpretability analysis—offers a promising path forward. This aligns directly with the objectives of the present study, which seeks to combine structural MRI and metadata, apply CNN-based classification, and integrate explainability tools such as Grad-CAM to enhance clinical relevance.
+Project Overview
+Alzheimer’s disease (AD) is a progressive neurodegenerative disorder and the leading cause of dementia worldwide, affecting millions of individuals and placing immense emotional and financial burdens on families and healthcare systems. While no cure currently exists, early and accurate diagnosis is critical for timely intervention, improved patient outcomes, and more effective clinical trial enrollment. Traditional diagnostic methods, such as neuropsychological testing and manual imaging review, are time-intensive, subjective, and limited in their ability to detect subtle changes in brain structure over time.
+Recent advances in neuroimaging and artificial intelligence (AI) have opened new opportunities to enhance diagnostic accuracy and disease progression prediction. Magnetic Resonance Imaging (MRI) provides high-resolution structural information about the brain, while deep learning models, particularly convolutional neural networks (CNNs), excel at identifying complex, non-linear patterns in imaging data. However, despite promising results, most studies rely on single-modality, cross-sectional datasets and lack integration of clinical metadata and explainable AI techniques. This creates a gap between high-performing models and clinically interpretable tools that physicians can trust.
+This project aims to bridge that gap by developing a multimodal, explainable AI pipeline that integrates MRI data with relevant clinical and biomarker information to classify subjects into cognitively normal (CN), mild cognitive impairment (MCI), and Alzheimer’s disease (AD) categories. The system will incorporate Grad-CAM visualizations to highlight brain regions that are most influential to model predictions, enabling both high performance and interpretability. By leveraging the ADNI dataset and a structured deep learning workflow, this research seeks to contribute to the growing body of literature on AI-assisted Alzheimer’s diagnostics while addressing key limitations in current methodologies.
+ Model Development
+Images were extracted and organized into a working directory using a recursive script with os.walk() to identify all subject folders. Metadata was parsed using pandas, and subject IDs in the image filenames were matched to corresponding clinical labels. Three class-based folders (CN, MCI, AD) were created within a directory named classified_slices, and images were moved accordingly.
+Setting up a separate environment in Anaconda is necessary for proper use of libraries. This will keep packages isolated and will make it easier to troubleshoot. To create a new environment, use the Anaconda Prompt and enter. Choosing python version 3.9 due to its compatibility with imaging ML libraries, then start installing packages. The next step is to upload all the data to the Anaconda. This is done by launching Jupyter notebook from the folder in which the data is stored.
+A convolutional neural network (CNN) model was trained on the preprocessed image slices from the three diagnostic groups. The model's accuracy in predicting diagnostic labels was evaluated. Grad-CAM was applied to interpret the model's focus areas and identify visual features contributing to predictions. Metadata was then joined with imaging data by parsing identifiers from filenames. Finally, diagnostic labels were confirmed and matched with the metadata.
+Results
+The convolutional neural network trained on structural MRI slices from the ADNI dataset achieved a validation accuracy of approximately 90% with a corresponding balanced accuracy of 0.90, indicating that performance was consistent across the three diagnostic categories (cognitively normal, mild cognitive impairment, and Alzheimer’s disease). The confusion matrix revealed that most subjects were classified correctly, with the strongest performance on the MCI group, where precision reached 0.93. The most common errors occurred in distinguishing cognitively normal from Alzheimer’s disease subjects, suggesting feature overlap in these groups. Class-wise F1 scores ranged from 0.88 to 0.92, demonstrating a strong balance between precision and recall across categories. Grad-CAM overlays further supported the reliability of predictions by highlighting salient cortical and temporal regions, aligning with known sites of Alzheimer’s pathology. Heatmaps appeared sharper and more localized for correctly classified samples, while misclassified cases exhibited diffuse activation patterns, reflecting model uncertainty. Together, these results demonstrate the feasibility of combining MRI data with explainable AI to achieve both high predictive accuracy and interpretability in Alzheimer’s disease classification.
+Future Directions
+Although tau cannot be directly visualized on standard MRI, there is strong evidence that its presence can be inferred through downstream effects. Cortical thinning in the entorhinal and inferior temporal cortices, diffusion MRI measures such as increased free-water, and disruptions in default mode network connectivity on resting-state fMRI have all been shown to parallel tau accumulation. These findings suggest that MRI can act as a practical proxy for tau pathology, especially in clinical or research settings where PET imaging or CSF biomarkers are not available (Qiu et al., 2024) (Risacher & Saykin, 2019). What this demonstrates is that neurodegeneration driven by tau leaves identifiable fingerprints in MRI data, and with careful analysis, these signatures can offer valuable insight into disease progression.
+At the same time, it is important to recognize that biomarkers are not always consistent or even present in every patient (Dubois et al., 2023).  Currently, “positive amyloid or tau tracer retention on positron emission tomography imaging, low CSF concentrations of the amyloid-β 1-42 peptide, high CSF concentrations in total tau and phospho-tau, mesial temporal lobe atrophy on magnetic resonance imaging, and temporoparietal/precuneus hypometabolism or hypoperfusion on 18F-fluorodeoxyglucose positron emission tomography have all emerged as biomarkers for the progression to AD” (Counts et al., 2016). In the earliest stages of Alzheimer’s, amyloid or tau may not reach detectable thresholds, and structural MRI changes may not yet be visible. Neuropathologically amyloid alone is not sufficient. Most radionucleide-label imaging only assesses amyloid, so the coupling to tau is only a presumption. Technical limitations also play a role, because imaging and fluid assays can only detect pathology above certain levels. Finally, there are individuals who carry significant pathology yet remain cognitively intact for years, often called resilient agers, which challenges the assumption that biomarkers always align with clinical outcomes (Smith, 2011). These limitations highlight the necessity of using multimodal approaches and combining biomarkers rather than relying on any single measure.
+Building on these findings, there is an important opportunity to consider the future of Alzheimer’s imaging in the context of theranostics. Theranostics integrates diagnostic and therapeutic capabilities, and in the case of Alzheimer’s, it raises the possibility of simultaneously detecting and treating tau or amyloid pathology (UChicago Medicine, n.d.). While today we rely on MRI to indirectly map the effects of tau, future approaches may involve MRI-compatible contrast agents or ligands designed to bind tau and amyloid aggregates directly. These would allow clinicians to visualize the pathology in real time and, with the same platform, deliver targeted therapy. Such an approach mirrors advances in oncology, where theranostic tracers are already used to both localize and treat tumors. For Alzheimer’s disease, this direction suggests a shift from relying solely on structural correlations of pathology to actively identifying and intervening in its earliest stages.
+Based on these findings, several recommendations can be made. There is a clear need to advance theranostic strategies that not only detect tau and amyloid more directly but also provide targeted intervention. Efforts should be directed toward developing MRI-compatible ligands and contrast agents, validating them against existing PET and CSF standards, and testing whether therapeutic payloads can be coupled with diagnostic imaging in a safe, scalable way. While current MRI-based measures already add value, the long-term goal should be to integrate them into a theranostic model that transforms Alzheimer’s care from reactive to proactive.
+Discussion
+The results of this study demonstrate the feasibility of applying deep learning models, specifically convolutional neural networks, to classify Alzheimer’s disease from structural MRI slices with integrated patient metadata. Grad-CAM visualizations provided interpretable insights by highlighting brain regions that contributed most to each classification decision, aligning with known Alzheimer’s biomarkers in temporal and parietal areas. Preliminary outputs indicate consistent classification patterns across patient subgroups. These findings underscore the potential of combining neuroimaging data with explainable AI techniques for diagnostic support, while also highlighting the importance of further optimization to improve predictive accuracy and generalizability in clinical contexts.
+Conclusion
+Alzheimer’s can be diagnosed with scans; therefore, the research should start with the scans. This project lays a foundational pipeline for Alzheimer's disease classification using MRI slices and metadata. By structuring the data, applying CNN-based classification, and preparing for biomarker integration, this research opens the door for deeper explorations in explainable AI and multimodal neuroimaging analytics. With public access to datasets like the ADNI study, the answer is right around the corner. The approach helps bridge the gap between high‑performing models and clinical credibility. Future work will extend to temporal progression prediction and multimodal fusion with PET and biomarker data to strengthen biological validation and enable individualized risk trajectories. While Alzheimer’s continues to harm the ones we love, there is hope that by utilizing imaging initiatives and supporting innovation, the horrible disease can someday be eliminated. 
+ 
+Acknowledgements
+I would like to express my deepest gratitude to Dr. Raman Nandikkara for his guidance, constructive feedback, and encouragement throughout the development of this capstone project. His mentorship has been invaluable in shaping both the technical and research aspects of this work.
+I also extend my appreciation to Wilmington University’s College of Technology for providing the academic environment, resources, and support that enabled the successful completion of this project.
+Data used in the preparation of this capstone project were obtained from the Alzheimer’s Disease Neuroimaging Initiative (ADNI) database (adni.loni.usc.edu). The ADNI was launched in 2003 as a public–private partnership, led by Principal Investigator Michael W. Weiner, MD. The investigators within ADNI contributed to the design and implementation of ADNI and/or provided data but did not participate in the analysis or writing of this report. A complete listing of ADNI investigators can be found at: http://adni.loni.usc.edu/wp-content/uploads/how_to_apply/ADNI_Acknowledgement_List.pdf. Data collection and sharing for the ADNI is funded by the National Institute on Aging (National Institutes of Health Grant U19AG024904), with additional support from the National Institute of Biomedical Imaging and Bioengineering, the Canadian Institutes of Health Research, and private sector contributions through the Foundation for the National Institutes of Health (FNIH).
+Finally, I am sincerely grateful to my family and friends for their constant support, patience, and encouragement throughout my graduate studies. Their belief in me provided the motivation to complete this project.
+ 
+References
+Aghaei, M., et al. (2025). Deep learning-based multi-class classification of Alzheimer’s disease using structural MRI from the ADNI database. Scientific Reports. https://www.nature.com/articles/s41598-025-13478-2
+Al Olaimat, A., et al. (2023). Predicting progression to Alzheimer’s disease using recurrent neural network architectures. Bioinformatics, 39(Suppl 1), i149–i158.
+	https://academic.oup.com/bioinformatics/article/39/Supplement_1/i149/7210436
+Ashish, N., Bhatt, P., & Toga, A. W. (2016). Global Data Sharing in alzheimer disease research. Alzheimer disease and associated disorders. https://pmc.ncbi.nlm.nih.gov/articles/PMC4851599/
+Alzheimer’s disease neuroimaging initiative. (n.d.). Alzheimer’s disease neuroimaging initiative. 
+ADNI. https://adni.loni.usc.edu/about/governance/
+ANDI. (n.d.). Alzheimer’s Disease Neuroimaging Initiative. Ida.loni.usc.edu. https://ida.loni.usc.edu/home/projectPage.jsp?project=ADNI
+Ashish, N., Bhatt, P., & Toga, A. W. (2016). Global data sharing in Alzheimer disease research. Alzheimer Disease & Associated Disorders, 30(2), 160–168. https://pmc.ncbi.nlm.nih.gov/articles/PMC4851599/
+Breijyeh, Z., & Karaman, R. (2020, December 8). Comprehensive review on alzheimer’s disease: Causes and treatment. MDPI. https://www.mdpi.com/1420-3049/25/24/5789
+Castellano, M., et al. (2024). Uni- and multimodal deep learning for Alzheimer’s disease classification. Scientific Reports. https://www.nature.com/articles/s41598-024-56001-9
+Chattopadhyay, S., et al. (2024). Grad-CAM vs occlusion sensitivity analysis in Alzheimer’s MRI classification. PLOS ONE, 19(7), e11429733. 
+Chen, Z.-R., Huang, J.-B., Yang, S.-L., & Hong, F.-F. (2022, March 10). Role of cholinergic 
+signaling in alzheimer’s disease. MDPI. https://www.mdpi.com/1420-3049/27/6/1816
+Counts, S. E., Ikonomovic, M. D., Mercado, N., Vega, I. E., & Mufson, E. J. (2016, October 13). Biomarkers for the early detection and progression of alzheimer’s disease. Neurotherapeutics : the journal of the American Society for Experimental NeuroTherapeutics. https://pmc.ncbi.nlm.nih.gov/articles/PMC5233625/ 
+Dubois, B., von Arnim, C. A. F., Burnie, N., Bozeat, S., & Cummings, J. (2023, October 13). Biomarkers in alzheimer’s disease: Role in early and differential diagnosis and recognition of atypical variants. Alzheimer’s research & therapy. https://pmc.ncbi.nlm.nih.gov/articles/PMC10571241/ 
+Khosroshahi, S., et al. (2025). Explainable artificial intelligence in Alzheimer’s neuroimaging: A 
+review. Brain Sciences, 15(1), 120. https://pmc.ncbi.nlm.nih.gov/articles/PMC11899653/
+National Institute on Aging. (2025). Alzheimer’s Disease Neuroimaging Initiative (ADNI). 
+https://www.nia.nih.gov/research/dn/alzheimers-disease-neuroimaging-initiative-adni
+NIH National Institute on Aging. (2025, February 14). Alzheimers disease neuroimaging initiative (ADNI) | National Institute on Aging. NIH National Institute on Aging. https://www.nia.nih.gov/research/dn/alzheimers-disease-neuroimaging-initiative-adni
+NIH. (n.d.). Alzheimer’s disease fact sheet | National Institute on Aging. National Institute of agin. https://www.nia.nih.gov/health/alzheimers-and-dementia/alzheimers-disease-fact-sheet
+Park, J., et al. (2023). Predicting MCI-to-AD conversion with deep learning models. Journal of 
+Clinical Neurology, 19(4), 289–300. https://thejcn.com/DOIx.php?id=10.3988/jcn.2023.0289
+Qiu, S., et al. (2022). Multistage deep learning for Alzheimer’s disease and other dementias. 
+Nature Communications, 13(1), 31037. https://www.nature.com/articles/s41467-022-31037-5
+Qiu, T., Liu, Z.-Q., Rheault, F., Legarreta, J. H., Valcourt Caron, A., St-Onge, F., Strikwerda-Brown, C., Metz, A., Dadar, M., Soucy, J.-P., Pichet Binette, A., Spreng, R. N., Descoteaux, M., & Villeneuve, S. (2024, April 1). Structural white matter properties and cognitive resilience to Tau Pathology. Alzheimer’s & dementia : the journal of the Alzheimer’s Association. https://pmc.ncbi.nlm.nih.gov/articles/PMC11095478/ 
+Risacher, S. L., & Saykin, A. J. (2019, April 13). Neuroimaging in aging and neurologic diseases. Handbook of clinical neurology. https://pmc.ncbi.nlm.nih.gov/articles/PMC9006168/ 
+Selkoe, D. J., & Hardy, J. (2016, March 29). The amyloid hypothesis of alzheimer’s disease at 25 years | EMBO Molecular Medicine. EMBOpress. https://www.embopress.org/doi/full/10.15252/emmm.201606210
+Smith, C. D. (2011, July 14). Structural Imaging in early pre-states of dementia. Biochimica et biophysica acta. https://pmc.ncbi.nlm.nih.gov/articles/PMC3223541/ 
+UChicago Medicine. (n.d.). Theranostics. https://www.uchicagomedicine.org/cancer/types-treatments/theranostics 
+U.S. Department of Health and Human Services. (n.d.). Magnetic Resonance Imaging (MRI). National Institute of Biomedical Imaging and Bioengineering. https://www.nibib.nih.gov/science-education/science-topics/magnetic-resonance-imaging-mri
+Wang, H., et al. (2024). Interpretable deep learning for multimodal Alzheimer’s progression 
+prediction. Journal of Translational Medicine, 22, 5025. https://translational-medicine.biomedcentral.com/articles/10.1186/s12967-024-05025-w
+World Health Organization. (2023). Dementia. https://www.who.int/news-room/fact-sheets/detail/dementia
+
+
+
+ 
+Appendix A
+Model Code: Setup and Data Load
+conda create -n mri_cv_env python=3.9
+conda activate mri_cv_env
+conda install -c conda-forge nibabel matplotlib scikit-learn pandas
+pip install torch torchvision torchaudio
+pip install tensorflow
+pip install opencv-python
+conda install notebook
+pip install opencv-python seaborn
+pip install monai nilearn tqdm scipy
+Still in Anaconda prompt, run the following code:
+cd "C:\Users\alper\ADNI\ADNI"
+conda activate mri_cv_env
+jupyter notebook
+Open a new kernel and run the following code:
+nii_file = "002_S_0295/MPR__GradWarp__B1_Correction__N3__Scaled/2006-04-18_08_20_30.0/I45108/ADNI_002_S_0295_MR_MPR__GradWarp__B1_Correction__N3__Scaled_Br_20070319113623975_S13408_I45108.nii"
+import nibabel as nib
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = nib.load(nii_file)
+data = img.get_fdata()
+print("MRI shape (x, y, z):", data.shape)
+mid = data.shape[2] // 2
+plt.imshow(data[:, :, mid], cmap='gray')
+plt.title(f'Axial Slice {mid}')
+plt.axis('off')
+plt.show()
+This block of code does multiple things; it loads a 3D MRI scan and confirms the shape of images. Next, we want to list all the folders in the current directory. 
+import os
+base_dir = "."  # this points to ADNI/ADNI, where your subject folders live
+# Print all subdirectories inside the current ADNI/ADNI folder
+for root, dirs, files in os.walk(base_dir):
+    for name in dirs:
+        full_path = os.path.join(root, name)
+        print("Found folder:", full_path)
+
+Once all the folders are listed, we run a script to process all of the files. This will walk through all the ANDI subfolders and load each file. Next, it will extract and save 2D slices as PNG images and then save them into a separate folder.
+import os
+import nibabel as nib
+import numpy as np
+import cv2
+
+base_dir = "."  # Or your actual root dir
+output_dir = "slices_output"
+os.makedirs(output_dir, exist_ok=True)
+
+def extract_and_save_slices(nii_path, output_dir, max_slices=10):
+    try:
+        img = nib.load(nii_path)
+        data = img.get_fdata()
+        mid = data.shape[2] // 2
+
+        subject_id = os.path.basename(nii_path).split(".")[0]
+        subject_folder = os.path.join(output_dir, f"subject_{subject_id}")
+
+        #  folder has PNGs
+        if os.path.exists(subject_folder) and any(fname.endswith(".png") for fname in os.listdir(subject_folder)):
+            print(f"Skipping {subject_id} — already processed.")
+            return
+
+        os.makedirs(subject_folder, exist_ok=True)
+
+        for i in range(-max_slices//2, max_slices//2):
+            idx = mid + i
+            if idx < 0 or idx >= data.shape[2]:
+                continue
+
+            slice_2d = data[:, :, idx]
+            norm = cv2.normalize(slice_2d, None, 0, 255, cv2.NORM_MINMAX)
+            norm = norm.astype(np.uint8)
+            filename = os.path.join(subject_folder, f"slice_{idx:03d}.png")
+            cv2.imwrite(filename, norm)
+
+    except Exception as e:
+        print(f" Error processing {nii_path}: {e}")
+
+#  Collect all .nii/.nii.gz files
+nii_files = []
+for root, dirs, files in os.walk(base_dir):
+    for file in files:
+        if file.endswith(".nii") or file.endswith(".nii.gz"):
+            nii_files.append(os.path.join(root, file))
+
+print(f" Found {len(nii_files)} NIfTI files.")
+
+#  Run the extraction safely (can be stopped/resumed)
+for nii_path in nii_files:
+    extract_and_save_slices(nii_path, output_dir)
+
+print(" Done.")
+After the usage of the data in the files is extracted, we combine the metadata with the image data. First, we load and display the metadata. 
+import pandas as pd
+# Load the metadata CSV
+meta_path = "ADNI1_Complete_3Yr_1.5T_7_09_2025.csv"
+metadata = pd.read_csv(meta_path)
+# Display basic info
+print("Columns:", metadata.columns.tolist())
+metadata.head()
+This allows us to see there are three groups, CN (Cognitively Normal), MCI (Mild Cognitive Impairment), and AD (Alzheimer's Disease). With this information, the biomarkers in each image will be used to map the group names. The biomarkers are spatial discrepancies, or abnormalities, in the image - between the groups. This aims to classify the images with the metadata and create three sub folders for classification and visualization. 
+import os
+import shutil
+import pandas as pd
+import re 
+
+# Load metadata and create mapping
+meta_path = "ADNI1_Complete_3Yr_1.5T_7_09_2025.csv"
+metadata = pd.read_csv(meta_path)
+metadata['Subject'] = metadata['Subject'].astype(str)
+
+# Get subject group mapping
+subject_to_group = metadata[['Subject', 'Group']].drop_duplicates()
+
+# Define paths
+input_dir = "slices_output"    # Where your PNGs currently are
+output_dir = "classified_slices"  # Where you want organized folders to go
+os.makedirs(output_dir, exist_ok=True)
+
+# Loop through each subject folder
+for folder_name in os.listdir(input_dir):
+    if not folder_name.startswith("subject_"):
+        continue
+
+    match = re.search(r'\d{3}_S_\d{4}', folder_name)
+    if not match:
+        print(f"No valid subject ID found in: {folder_name}")
+        continue
+    subject_id = match.group()
+
+    group_row = subject_to_group[subject_to_group['Subject'].str.contains(subject_id)]
+    if group_row.empty:
+        print(f"No metadata for subject: {subject_id} (from {folder_name})")
+        continue
+
+    group = group_row['Group'].values[0]
+    group_folder = os.path.join(output_dir, group)
+    os.makedirs(group_folder, exist_ok=True)
+
+    # Copy PNGs
+    subject_path = os.path.join(input_dir, folder_name)
+    for file in os.listdir(subject_path):
+        if file.endswith(".png"):
+            src_file = os.path.join(subject_path, file)
+            dst_file = os.path.join(group_folder, f"{subject_id}_{file}")
+            shutil.copyfile(src_file, dst_file)
+
+print("Done organizing images into CN / MCI / AD folders.")
+To check if the sub-folders populated: 
+import os
+
+base_dir = "classified_slices"
+for group in ["CN", "MCI", "AD"]:
+    group_path = os.path.join(base_dir, group)
+    num_files = len([f for f in os.listdir(group_path) if f.endswith(".png")])
+    print(f"{group}: {num_files} images")
+To import libraries and define new path:
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import matplotlib.pyplot as plt
+import os
+
+# Base path to your classified images
+data_dir = "classified_slices"
+To create the training/validation split:
+img_size = (128, 128)  # Resize all images to same size
+batch_size = 32
+
+train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset="training",
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+
+val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset="validation",
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+Optimize and loading performance: 
+AUTOTUNE = tf.data.AUTOTUNE
+train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+The CNN model with 3 classes:
+model = models.Sequential([
+    layers.Rescaling(1./255, input_shape=(128, 128, 3)),
+    layers.Conv2D(32, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(64, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(128, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(3)  # 3 classes: CN, MCI, AD
+])
+Compile and train:
+model.compile(
+    optimizer='adam',
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=['accuracy']
+)
+
+history = model.fit(train_ds, validation_data=val_ds, epochs=10)
+Evaluation and visualization:
+acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+plt.figure(figsize=(8, 4))
+plt.subplot(1, 2, 1)
+plt.plot(acc, label='Train Accuracy')
+plt.plot(val_acc, label='Val Accuracy')
+plt.legend()
+plt.title('Accuracy')
+
+plt.subplot(1, 2, 2)
+plt.plot(loss, label='Train Loss')
+plt.plot(val_loss, label='Val Loss')
+plt.legend()
+plt.title('Loss')
+plt.show()
+ 
